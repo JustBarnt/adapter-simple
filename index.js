@@ -1,10 +1,13 @@
 import path from 'node:path';
+import { glob } from 'glob';
+import fs from 'node:fs';
 import { platforms } from './platforms.js';
+import { renameTargetExtenstion } from './adapter.js'
 
 /** @type {import('.').default} */
 export default function (options) {
 	return {
-		name: '@sveltejs/adapter-static',
+		name: 'adapter-simple',
 
 		async adapt(builder) {
 			if (!options?.fallback) {
@@ -55,7 +58,8 @@ See https://kit.svelte.dev/docs/page-options#prerender for more details`
 				pages = 'build',
 				assets = pages,
 				fallback,
-				precompress
+				precompress,
+                targetExtension
 			} = options ?? platform?.defaults ?? /** @type {import('./index').AdapterOptions} */ ({});
 
 			builder.rimraf(assets);
@@ -82,6 +86,10 @@ See https://kit.svelte.dev/docs/page-options#prerender for more details`
 			} else {
 				builder.log(`Wrote pages to "${pages}" and assets to "${assets}"`);
 			}
+
+            if(targetExtension) {
+                renameTargetExtenstion(pages, targetExtension.old, targetExtension.new)
+            }
 
 			if (!options) platform?.done(builder);
 		}
